@@ -2,7 +2,7 @@
 Task for applying code formatting.
 """
 
-from invoke import Collection, task, Task
+from invoke import Collection, task
 
 
 @task
