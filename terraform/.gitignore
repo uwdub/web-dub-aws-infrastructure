@@ -1,0 +1,4 @@
+# Terraform Local State
+**/.terraform
+**/terraform.tfstate
+**/terraform.tfstate.backup
