@@ -13,10 +13,9 @@ terraform {
 }
 
 /*
- * Configure AWS profile.
+ * AWS configuration is provided by environment in surrounding task.
  */
 provider "aws" {
-  profile = "probe"
 }
 
 /*

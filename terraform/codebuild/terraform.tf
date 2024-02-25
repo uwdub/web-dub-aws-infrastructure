@@ -9,10 +9,10 @@ terraform {
     }
   }
 
+  /*
+   * AWS configuration is provided by environment in surrounding task.
+   */
   backend "s3" {
-    profile = "probe"
-    region = "us-east-1"
-
     bucket = "web-dub-aws-infrastructure-state-codebuild"
     key = "state/terraform.tfstate"
     dynamodb_table = "web-dub-aws-infrastructure-state-lock"
@@ -22,10 +22,9 @@ terraform {
 }
 
 /*
- * Configure AWS profile.
+ * AWS configuration is provided by environment in surrounding task.
  */
 provider "aws" {
-  profile = "probe"
 }
 
 /*

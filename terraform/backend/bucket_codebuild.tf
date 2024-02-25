@@ -4,11 +4,10 @@
 resource "aws_s3_bucket" "terraform_state_codebuild" {
   bucket = "web-dub-aws-infrastructure-state-codebuild"
 
-  /*
+  force_destroy = true
   lifecycle {
     prevent_destroy = true
   }
-  */
 }
 
 resource "aws_s3_bucket_versioning" "terraform_state_codebuild" {
