@@ -272,5 +272,6 @@ def task_build(context):
 # Build task collection
 ns = Collection("codebuild")
 
+ns.add_task(task_terraform_apply, "apply")
 ns.add_task(task_build, "build")
 ns.add_task(task_terraform_destroy, "destroy")

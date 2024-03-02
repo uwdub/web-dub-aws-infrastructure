@@ -7,6 +7,7 @@ import tasks.aws
 import tasks.codebuild
 import tasks.format
 import tasks.terraform_backend
+import tasks.terraform_ecr
 
 # Enable color
 colorama.init()
@@ -22,7 +23,7 @@ compose_collection(
     ns,
     tasks.codebuild.ns,
     name="codebuild",
-    exclude=["destroy"],
+    include=["build"],
 )
 
 # Compose from format.py
@@ -58,7 +59,16 @@ compose_collection(
 # Needed only for initial AWS configuration.
 # compose_collection(ns, tasks.aws.ns, name="aws")
 
+# Compose from codebuild.py
+# Needed only if we needed to access apply without triggering a build.
+# compose_collection(ns, tasks.codebuild.ns, name="codebuild", include=["apply"])
+
 # Compose from terraform_backend.py
 # Needed only for initial backend configuration.
 # compose_collection(ns_terraform, tasks.terraform_backend.ns, name="backend")
+# compose_collection(ns, ns_terraform, name="terraform")
+
+# Compose from terraform_ecr.py
+# Needed only for initial creation.
+# compose_collection(ns_terraform, tasks.terraform_ecr.ns, name="ecr")
 # compose_collection(ns, ns_terraform, name="terraform")
