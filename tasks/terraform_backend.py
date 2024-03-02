@@ -3,9 +3,18 @@ import os
 import os.path
 from pathlib import Path
 
+from tasks.terraform import write_terraform_variables
+
+BACKEND_NAME = "web-dub-backend"
+BACKEND_STATES = [
+    "codebuild",
+]
+
+PATH_STAGING = Path("./.staging")
 
 PATH_TERRAFORM_BIN = Path("./.bin/terraform_1.7.4_windows_amd64/terraform.exe")
-PATH_TERRAFORM_CODEBUILD_DIR = Path("./terraform/backend")
+PATH_TERRAFORM_DIR = Path("./terraform/backend")
+PATH_STAGING_TERRAFORM_VARIABLES = Path(PATH_STAGING, "terraform/backend.tfvars")
 
 
 @task
@@ -14,12 +23,20 @@ def task_terraform_apply(context):
     Issue a Terraform apply.
     """
 
-    with context.cd(PATH_TERRAFORM_CODEBUILD_DIR):
+    write_terraform_variables(
+        terraform_variables_path=PATH_STAGING_TERRAFORM_VARIABLES,
+        terraform_variables_dict={
+            "name": BACKEND_NAME,
+            "states": BACKEND_STATES,
+        },
+    )
+
+    with context.cd(PATH_TERRAFORM_DIR):
         # Ensure initialized
         context.run(
             command=" ".join(
                 [
-                    os.path.relpath(PATH_TERRAFORM_BIN, PATH_TERRAFORM_CODEBUILD_DIR),
+                    os.path.relpath(PATH_TERRAFORM_BIN, PATH_TERRAFORM_DIR),
                     "init",
                 ]
             ),
@@ -29,7 +46,7 @@ def task_terraform_apply(context):
         context.run(
             command=" ".join(
                 [
-                    os.path.relpath(PATH_TERRAFORM_BIN, PATH_TERRAFORM_CODEBUILD_DIR),
+                    os.path.relpath(PATH_TERRAFORM_BIN, PATH_TERRAFORM_DIR),
                     "get",
                     "-update",
                 ]
@@ -42,10 +59,14 @@ def task_terraform_apply(context):
                 filter(
                     None,
                     [
-                        os.path.relpath(
-                            PATH_TERRAFORM_BIN, PATH_TERRAFORM_CODEBUILD_DIR
-                        ),
+                        os.path.relpath(PATH_TERRAFORM_BIN, PATH_TERRAFORM_DIR),
                         "apply",
+                        '-var-file="{}"'.format(
+                            os.path.relpath(
+                                PATH_STAGING_TERRAFORM_VARIABLES,
+                                PATH_TERRAFORM_DIR,
+                            )
+                        ),
                     ],
                 )
             ),
@@ -59,12 +80,20 @@ def task_terraform_destroy(context):
     Issue a Terraform destroy.
     """
 
-    with context.cd(PATH_TERRAFORM_CODEBUILD_DIR):
+    write_terraform_variables(
+        terraform_variables_path=PATH_STAGING_TERRAFORM_VARIABLES,
+        terraform_variables_dict={
+            "name": BACKEND_NAME,
+            "states": BACKEND_STATES,
+        },
+    )
+
+    with context.cd(PATH_TERRAFORM_DIR):
         # Ensure initialized
         context.run(
             command=" ".join(
                 [
-                    os.path.relpath(PATH_TERRAFORM_BIN, PATH_TERRAFORM_CODEBUILD_DIR),
+                    os.path.relpath(PATH_TERRAFORM_BIN, PATH_TERRAFORM_DIR),
                     "init",
                 ]
             ),
@@ -74,7 +103,7 @@ def task_terraform_destroy(context):
         context.run(
             command=" ".join(
                 [
-                    os.path.relpath(PATH_TERRAFORM_BIN, PATH_TERRAFORM_CODEBUILD_DIR),
+                    os.path.relpath(PATH_TERRAFORM_BIN, PATH_TERRAFORM_DIR),
                     "get",
                     "-update",
                 ]
@@ -87,10 +116,14 @@ def task_terraform_destroy(context):
                 filter(
                     None,
                     [
-                        os.path.relpath(
-                            PATH_TERRAFORM_BIN, PATH_TERRAFORM_CODEBUILD_DIR
-                        ),
+                        os.path.relpath(PATH_TERRAFORM_BIN, PATH_TERRAFORM_DIR),
                         "destroy",
+                        '-var-file="{}"'.format(
+                            os.path.relpath(
+                                PATH_STAGING_TERRAFORM_VARIABLES,
+                                PATH_TERRAFORM_DIR,
+                            )
+                        ),
                     ],
                 )
             ),

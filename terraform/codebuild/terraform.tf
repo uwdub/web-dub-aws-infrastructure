@@ -13,9 +13,9 @@ terraform {
    * AWS configuration is provided by environment in surrounding task.
    */
   backend "s3" {
-    bucket = "web-dub-aws-infrastructure-state-codebuild"
+    bucket = "web-dub-backend-tfstate-codebuild"
     key = "state/terraform.tfstate"
-    dynamodb_table = "web-dub-aws-infrastructure-state-lock"
+    dynamodb_table = "web-dub-backend-tfstate-lock"
   }
 
   required_version = "1.7.4"

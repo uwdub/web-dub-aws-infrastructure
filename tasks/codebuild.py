@@ -1,6 +1,5 @@
 import boto3
 from invoke import Collection, task
-import json
 import os
 import os.path
 from pathlib import Path
@@ -8,18 +7,20 @@ import ruamel.yaml
 import shutil
 import time
 
+from tasks.terraform import write_terraform_variables
 
 CODEBUILD_NAME = "web-dub-codebuild"
-
 PATH_CODEBUILD_SOURCE = Path("./codebuild")
 
-PATH_STAGING_DIR = Path("./.staging/codebuild")
-PATH_STAGING_CODEBUILD_ARCHIVE = Path("./.staging/codebuild/archive.zip")
-PATH_STAGING_CODEBUILD_SOURCE = Path("./.staging/codebuild/source")
-PATH_STAGING_TERRAFORM_VARIABLES = Path("./.staging/terraform/codebuild.tfvars")
+PATH_STAGING = Path("./.staging")
+
+PATH_STAGING_CODEBUILD_DIR = Path(PATH_STAGING, "codebuild")
+PATH_STAGING_CODEBUILD_ARCHIVE = Path(PATH_STAGING_CODEBUILD_DIR, "archive.zip")
+PATH_STAGING_CODEBUILD_SOURCE = Path(PATH_STAGING_CODEBUILD_DIR, "source")
 
 PATH_TERRAFORM_BIN = Path("./.bin/terraform_1.7.4_windows_amd64/terraform.exe")
-PATH_TERRAFORM_CODEBUILD_DIR = Path("./terraform/codebuild")
+PATH_TERRAFORM_DIR = Path("./terraform/codebuild")
+PATH_STAGING_TERRAFORM_VARIABLES = Path(PATH_STAGING, "terraform/codebuild.tfvars")
 
 
 @task
@@ -28,8 +29,8 @@ def task_create_codebuild_archive(context):
     Prepare the CodeBuild archive for Terraform to upload.
     """
 
-    # Remove any prior staging
-    shutil.rmtree(path=PATH_STAGING_DIR, ignore_errors=True)
+    # Remove any prior CodeBuild staging
+    shutil.rmtree(path=PATH_STAGING_CODEBUILD_DIR, ignore_errors=True)
 
     # Copy archive source into a staging directory
     shutil.copytree(src=PATH_CODEBUILD_SOURCE, dst=PATH_STAGING_CODEBUILD_SOURCE)
@@ -145,22 +146,22 @@ def task_terraform_apply(context):
     Issue a Terraform apply.
     """
 
-    _write_terraform_variables(
+    write_terraform_variables(
         terraform_variables_path=PATH_STAGING_TERRAFORM_VARIABLES,
         terraform_variables_dict={
             "name": CODEBUILD_NAME,
             "source_archive": os.path.relpath(
-                PATH_STAGING_CODEBUILD_ARCHIVE, PATH_TERRAFORM_CODEBUILD_DIR
+                PATH_STAGING_CODEBUILD_ARCHIVE, PATH_TERRAFORM_DIR
             ),
         },
     )
 
-    with context.cd(PATH_TERRAFORM_CODEBUILD_DIR):
+    with context.cd(PATH_TERRAFORM_DIR):
         # Ensure initialized
         context.run(
             command=" ".join(
                 [
-                    os.path.relpath(PATH_TERRAFORM_BIN, PATH_TERRAFORM_CODEBUILD_DIR),
+                    os.path.relpath(PATH_TERRAFORM_BIN, PATH_TERRAFORM_DIR),
                     "init",
                 ]
             ),
@@ -170,7 +171,7 @@ def task_terraform_apply(context):
         context.run(
             command=" ".join(
                 [
-                    os.path.relpath(PATH_TERRAFORM_BIN, PATH_TERRAFORM_CODEBUILD_DIR),
+                    os.path.relpath(PATH_TERRAFORM_BIN, PATH_TERRAFORM_DIR),
                     "get",
                     "-update",
                 ]
@@ -183,14 +184,12 @@ def task_terraform_apply(context):
                 filter(
                     None,
                     [
-                        os.path.relpath(
-                            PATH_TERRAFORM_BIN, PATH_TERRAFORM_CODEBUILD_DIR
-                        ),
+                        os.path.relpath(PATH_TERRAFORM_BIN, PATH_TERRAFORM_DIR),
                         "apply",
                         '-var-file="{}"'.format(
                             os.path.relpath(
                                 PATH_STAGING_TERRAFORM_VARIABLES,
-                                PATH_TERRAFORM_CODEBUILD_DIR,
+                                PATH_TERRAFORM_DIR,
                             )
                         ),
                         "-auto-approve",
@@ -207,22 +206,22 @@ def task_terraform_destroy(context):
     Issue a Terraform destroy.
     """
 
-    _write_terraform_variables(
+    write_terraform_variables(
         terraform_variables_path=PATH_STAGING_TERRAFORM_VARIABLES,
         terraform_variables_dict={
             "name": CODEBUILD_NAME,
             "source_archive": os.path.relpath(
-                PATH_STAGING_CODEBUILD_ARCHIVE, PATH_TERRAFORM_CODEBUILD_DIR
+                PATH_STAGING_CODEBUILD_ARCHIVE, PATH_TERRAFORM_DIR
             ),
         },
     )
 
-    with context.cd(PATH_TERRAFORM_CODEBUILD_DIR):
+    with context.cd(PATH_TERRAFORM_DIR):
         # Ensure initialized
         context.run(
             command=" ".join(
                 [
-                    os.path.relpath(PATH_TERRAFORM_BIN, PATH_TERRAFORM_CODEBUILD_DIR),
+                    os.path.relpath(PATH_TERRAFORM_BIN, PATH_TERRAFORM_DIR),
                     "init",
                 ]
             ),
@@ -232,7 +231,7 @@ def task_terraform_destroy(context):
         context.run(
             command=" ".join(
                 [
-                    os.path.relpath(PATH_TERRAFORM_BIN, PATH_TERRAFORM_CODEBUILD_DIR),
+                    os.path.relpath(PATH_TERRAFORM_BIN, PATH_TERRAFORM_DIR),
                     "get",
                     "-update",
                 ]
@@ -245,17 +244,14 @@ def task_terraform_destroy(context):
                 filter(
                     None,
                     [
-                        os.path.relpath(
-                            PATH_TERRAFORM_BIN, PATH_TERRAFORM_CODEBUILD_DIR
-                        ),
+                        os.path.relpath(PATH_TERRAFORM_BIN, PATH_TERRAFORM_DIR),
                         "destroy",
                         '-var-file="{}"'.format(
                             os.path.relpath(
                                 PATH_STAGING_TERRAFORM_VARIABLES,
-                                PATH_TERRAFORM_CODEBUILD_DIR,
+                                PATH_TERRAFORM_DIR,
                             )
                         ),
-                        # '-auto-approve',
                     ],
                 )
             ),
@@ -271,32 +267,6 @@ def task_build(context):
 
     # Actual build happens in the sequence of pre-requisite tasks.
     pass
-
-
-def _write_terraform_variables(
-    *,
-    terraform_variables_path: Path,
-    terraform_variables_dict,
-):
-    os.makedirs(terraform_variables_path.parent, exist_ok=True)
-    with open(terraform_variables_path, "w") as file_variables:
-        file_variables.write(
-            "\n".join(
-                [
-                    "################################################################################",
-                    "# This file is automatically generated. Changes will be overwritten.",
-                    "################################################################################",
-                    "",
-                ]
-            )
-        )
-        for key, value in terraform_variables_dict.items():
-            file_variables.write(
-                "{} = {}\n".format(
-                    key,
-                    json.dumps(value, separators=(",", " = ")),
-                )
-            )
 
 
 # Build task collection

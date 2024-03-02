@@ -21,8 +21,8 @@ provider "aws" {
 /*
  * Table for backend locking.
  */
-resource "aws_dynamodb_table" "terraform_state_lock" {
-  name           = "web-dub-aws-infrastructure-state-lock"
+resource "aws_dynamodb_table" "backend_tfstate_lock" {
+  name           = join("-", [var.name, "tfstate-lock"])
   read_capacity  = 1
   write_capacity = 1
   hash_key       = "LockID"
