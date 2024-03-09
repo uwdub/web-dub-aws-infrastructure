@@ -179,7 +179,7 @@ class terraform_output_ecr:
 
 
 # Build task collection
-ns = Collection("backend")
+ns = Collection("ecr")
 
 ns.add_task(task_terraform_apply, "apply")
 ns.add_task(task_terraform_destroy, "destroy")
