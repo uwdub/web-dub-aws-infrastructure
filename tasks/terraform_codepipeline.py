@@ -1,22 +1,21 @@
+from dataclasses import dataclass
+import invoke
 from invoke import Collection, task
+import json
 import os
 import os.path
 from pathlib import Path
+from typing import Dict, Optional
 
 from tasks.terraform import write_terraform_variables
 
-BACKEND_NAME = "web-dub-backend"
-BACKEND_STATES = [
-    "codebuild",
-    "codepipeline",
-    "ecr",
-]
+CODEPIPELINE_NAME = "web-dub-codepipeline"
 
 PATH_STAGING = Path("./.staging")
 
 PATH_TERRAFORM_BIN = Path("./.bin/terraform_1.7.4_windows_amd64/terraform.exe")
-PATH_TERRAFORM_DIR = Path("./terraform/backend")
-PATH_STAGING_TERRAFORM_VARIABLES = Path(PATH_STAGING, "terraform/backend.tfvars")
+PATH_TERRAFORM_DIR = Path("./terraform/codepipeline")
+PATH_STAGING_TERRAFORM_VARIABLES = Path(PATH_STAGING, "terraform/codepipeline.tfvars")
 
 
 @task
@@ -28,8 +27,7 @@ def task_terraform_apply(context):
     write_terraform_variables(
         terraform_variables_path=PATH_STAGING_TERRAFORM_VARIABLES,
         terraform_variables_dict={
-            "name": BACKEND_NAME,
-            "states": BACKEND_STATES,
+            "name": CODEPIPELINE_NAME,
         },
     )
 
@@ -85,8 +83,7 @@ def task_terraform_destroy(context):
     write_terraform_variables(
         terraform_variables_path=PATH_STAGING_TERRAFORM_VARIABLES,
         terraform_variables_dict={
-            "name": BACKEND_NAME,
-            "states": BACKEND_STATES,
+            "name": CODEPIPELINE_NAME,
         },
     )
 
@@ -134,7 +131,7 @@ def task_terraform_destroy(context):
 
 
 # Build task collection
-ns = Collection("backend")
+ns = Collection("codepipeline")
 
 ns.add_task(task_terraform_apply, "apply")
 ns.add_task(task_terraform_destroy, "destroy")

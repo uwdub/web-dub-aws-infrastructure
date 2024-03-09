@@ -7,6 +7,7 @@ import tasks.aws
 import tasks.codebuild
 import tasks.format
 import tasks.terraform_backend
+import tasks.terraform_codepipeline
 import tasks.terraform_ecr
 
 # Enable color
@@ -43,6 +44,9 @@ compose_collection(
     name="codebuild",
     include=["destroy"],
 )
+
+# Compose from codepipeline.py
+compose_collection(ns_terraform, tasks.terraform_codepipeline.ns, name="codepipeline")
 
 # Complete Terraform tasks
 compose_collection(
