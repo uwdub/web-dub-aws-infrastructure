@@ -65,7 +65,8 @@ compose_collection(
 
 # Compose from codebuild.py
 # Needed only if we needed to access apply without triggering a build.
-# compose_collection(ns, tasks.codebuild.ns, name="codebuild", include=["apply"])
+# compose_collection(ns_terraform, tasks.codebuild.ns, name="codebuild", include=["apply"])
+# compose_collection(ns, ns_terraform, name="terraform")
 
 # Compose from terraform_backend.py
 # Needed only for initial backend configuration.

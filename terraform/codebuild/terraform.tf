@@ -122,7 +122,7 @@ resource "aws_iam_policy" "policy_codebuild" {
 /*
  * Role that defines access policies for project.
  */
-resource "aws_iam_role" "codebuild_project_role" {
+resource "aws_iam_role" "role_codebuild" {
   name = "codebuild_role_${var.name}"
 
   assume_role_policy = data.aws_iam_policy_document.policy_document_assume.json
@@ -144,7 +144,7 @@ resource "aws_cloudwatch_log_group" "logs" {
 resource "aws_codebuild_project" "codebuild_project" {
   name = var.name
 
-  service_role = aws_iam_role.codebuild_project_role.arn
+  service_role = aws_iam_role.role_codebuild.arn
 
   artifacts {
     type = "NO_ARTIFACTS"
