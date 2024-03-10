@@ -1,6 +1,5 @@
 from dataclasses import dataclass
-import invoke
-from invoke import Collection, task
+from invoke import Collection, Context, task
 import json
 import os
 import os.path
@@ -132,14 +131,14 @@ def task_terraform_destroy(context):
         )
 
 
-class terraform_output_ecr:
+class TerraformOutputEcr:
     @dataclass
-    class TerraformOutputEcr:
+    class TerraformOutputDataEcr:
         registry_url: str
         repository_urls: Dict[str, str]
 
-    _context: invoke.Context
-    _cached_output: Optional[TerraformOutputEcr]
+    _context: Context
+    _cached_output: Optional[TerraformOutputDataEcr]
 
     """
     """
@@ -170,7 +169,7 @@ class terraform_output_ecr:
 
             output_json = json.loads(result.stdout.strip())
 
-            self._cached_output = self.TerraformOutputEcr(
+            self._cached_output = self.TerraformOutputDataEcr(
                 registry_url=output_json["registry_url"]["value"],
                 repository_urls=output_json["repository_urls"]["value"],
             )
