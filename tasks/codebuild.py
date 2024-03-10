@@ -1,11 +1,14 @@
 import boto3
-from invoke import Collection, task
+from dataclasses import dataclass
+from invoke import Collection, Context, task
+import json
 import os
 import os.path
 from pathlib import Path
 import ruamel.yaml
 import shutil
 import time
+from typing import Optional
 
 from tasks.terraform import write_terraform_variables
 
@@ -267,6 +270,52 @@ def task_build(context):
 
     # Actual build happens in the sequence of pre-requisite tasks.
     pass
+
+
+class TerraformOutputCodeBuild:
+    @dataclass
+    class TerraformOutputDataCodeBuild:
+        codebuild_arn: str
+        codebuild_name: str
+
+    _context: Context
+    _cached_output: Optional[TerraformOutputDataCodeBuild]
+
+    """
+    """
+
+    def __init__(self, context):
+        self._context = context
+        self._cached_output = None
+
+    def __enter__(self):
+        return self
+
+    def __exit__(self, exc_type, exc_val, exc_tb):
+        pass
+
+    @property
+    def output(self):
+        if self._cached_output is None:
+            with self._context.cd(PATH_TERRAFORM_DIR):
+                result = self._context.run(
+                    command=" ".join(
+                        [
+                            os.path.relpath(PATH_TERRAFORM_BIN, PATH_TERRAFORM_DIR),
+                            "output",
+                            "-json",
+                        ]
+                    ),
+                )
+
+            output_json = json.loads(result.stdout.strip())
+
+            self._cached_output = self.TerraformOutputDataCodeBuild(
+                codebuild_arn=output_json["codebuild_arn"]["value"],
+                codebuild_name=output_json["codebuild_name"]["value"],
+            )
+
+        return self._cached_output
 
 
 # Build task collection

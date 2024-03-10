@@ -1,15 +1,16 @@
 from dataclasses import dataclass
-import invoke
 from invoke import Collection, task
-import json
 import os
 import os.path
 from pathlib import Path
-from typing import Dict, Optional
 
+from tasks.codebuild import TerraformOutputCodeBuild
 from tasks.terraform import write_terraform_variables
 
 CODEPIPELINE_NAME = "web-dub-codepipeline"
+
+GIT_REPOSITORY_ID = "uwdub/web-dub"
+GIT_REPOSITORY_BRANCH = "master"
 
 PATH_STAGING = Path("./.staging")
 
@@ -24,12 +25,17 @@ def task_terraform_apply(context):
     Issue a Terraform apply.
     """
 
-    write_terraform_variables(
-        terraform_variables_path=PATH_STAGING_TERRAFORM_VARIABLES,
-        terraform_variables_dict={
-            "name": CODEPIPELINE_NAME,
-        },
-    )
+    with TerraformOutputCodeBuild(context=context) as terraform_code_build:
+        write_terraform_variables(
+            terraform_variables_path=PATH_STAGING_TERRAFORM_VARIABLES,
+            terraform_variables_dict={
+                "name": CODEPIPELINE_NAME,
+                "codebuild_arn": terraform_code_build.output.codebuild_arn,
+                "codebuild_name": terraform_code_build.output.codebuild_name,
+                "git_repository_id": GIT_REPOSITORY_ID,
+                "git_repository_branch": GIT_REPOSITORY_BRANCH,
+            },
+        )
 
     with context.cd(PATH_TERRAFORM_DIR):
         # Ensure initialized
@@ -80,12 +86,17 @@ def task_terraform_destroy(context):
     Issue a Terraform destroy.
     """
 
-    write_terraform_variables(
-        terraform_variables_path=PATH_STAGING_TERRAFORM_VARIABLES,
-        terraform_variables_dict={
-            "name": CODEPIPELINE_NAME,
-        },
-    )
+    with TerraformOutputCodeBuild(context=context) as terraform_code_build:
+        write_terraform_variables(
+            terraform_variables_path=PATH_STAGING_TERRAFORM_VARIABLES,
+            terraform_variables_dict={
+                "name": CODEPIPELINE_NAME,
+                "codebuild_arn": terraform_code_build.output.codebuild_arn,
+                "codebuild_name": terraform_code_build.output.codebuild_name,
+                "git_repository_id": GIT_REPOSITORY_ID,
+                "git_repository_branch": GIT_REPOSITORY_BRANCH,
+            },
+        )
 
     with context.cd(PATH_TERRAFORM_DIR):
         # Ensure initialized

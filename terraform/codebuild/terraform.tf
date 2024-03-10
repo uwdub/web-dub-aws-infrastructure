@@ -50,6 +50,8 @@ resource "aws_s3_object"  "codebuild_source_object" {
  */
 data "aws_iam_policy_document" "policy_document_assume" {
   statement {
+    effect = "Allow"
+
     actions = [
       "sts:AssumeRole",
     ]
@@ -69,6 +71,8 @@ data "aws_iam_policy_document" "policy_document_assume" {
 data "aws_iam_policy_document" "policy_document_codebuild" {
   # CodeBuild policy for permissive access to logging
   statement {
+    effect = "Allow"
+
     actions = [
       "logs:CreateLogGroup",
       "logs:CreateLogStream",
@@ -82,6 +86,8 @@ data "aws_iam_policy_document" "policy_document_codebuild" {
 
   # CodeBuild policy for permissive access to S3
   statement {
+    effect = "Allow"
+
     actions = [
       "s3:GetBucketAcl",
       "s3:GetBucketLocation",
@@ -97,6 +103,8 @@ data "aws_iam_policy_document" "policy_document_codebuild" {
 
   # CodeBuild policy for permissive access to ECR
   statement {
+    effect = "Allow"
+
     actions = [
       "ecr:BatchCheckLayerAvailability",
       "ecr:CompleteLayerUpload",
@@ -110,6 +118,20 @@ data "aws_iam_policy_document" "policy_document_codebuild" {
       "*"
     ]
   }
+
+  statement {
+    effect = "Allow"
+
+    actions = [
+      "kms:Decrypt",
+      "kms:GenerateDataKey",
+    ]
+
+    resources = [
+      "*",
+    ]
+  }
+
 }
 
 /*
@@ -123,7 +145,7 @@ resource "aws_iam_policy" "policy_codebuild" {
  * Role that defines access policies for project.
  */
 resource "aws_iam_role" "role_codebuild" {
-  name = "codebuild_role_${var.name}"
+  name = "role_codebuild_${var.name}"
 
   assume_role_policy = data.aws_iam_policy_document.policy_document_assume.json
   managed_policy_arns = [
