@@ -37,16 +37,13 @@ compose_collection(
 # Compose Terraform tasks
 ns_terraform = Collection("terraform")
 
-# Compose from codebuild.py
+# Compose from codepipeline.py
 compose_collection(
     ns_terraform,
-    tasks.codebuild.ns,
-    name="codebuild",
-    include=["destroy"],
+    tasks.terraform_codepipeline.ns,
+    name="codepipeline",
+    include=["apply"],
 )
-
-# Compose from codepipeline.py
-compose_collection(ns_terraform, tasks.terraform_codepipeline.ns, name="codepipeline")
 
 # Complete Terraform tasks
 compose_collection(
@@ -60,20 +57,20 @@ compose_collection(
 #
 
 # Compose from aws.py
-# Needed only for initial AWS configuration.
+# Needed only for initial configuration.
 # compose_collection(ns, tasks.aws.ns, name="aws")
 
-# Compose from codebuild.py
-# Needed only if we needed to access apply without triggering a build.
-# compose_collection(ns_terraform, tasks.codebuild.ns, name="codebuild", include=["apply"])
-# compose_collection(ns, ns_terraform, name="terraform")
-
 # Compose from terraform_backend.py
-# Needed only for initial backend configuration.
+# Needed only for initial configuration.
 # compose_collection(ns_terraform, tasks.terraform_backend.ns, name="backend")
 # compose_collection(ns, ns_terraform, name="terraform")
 
+# Compose from terraform_codepipeline.py
+# Needed only for initial configuration.
+# compose_collection(ns_terraform, tasks.terraform_codepipeline.ns, name="codepipeline")
+# compose_collection(ns, ns_terraform, name="terraform")
+
 # Compose from terraform_ecr.py
-# Needed only for initial creation.
+# Needed only for initial configuration.
 # compose_collection(ns_terraform, tasks.terraform_ecr.ns, name="ecr")
 # compose_collection(ns, ns_terraform, name="terraform")

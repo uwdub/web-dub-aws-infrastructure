@@ -1,7 +1,21 @@
 /*
  * CodePipeline project name.
  */
-variable "name" {
+variable "name_codepipeline" {
+  type = string
+}
+
+/*
+ * CodePipeline project name.
+ */
+variable "name_codebuild" {
+  type = string
+}
+
+/*
+ * Path to source archive to upload for CodeBuild.
+ */
+variable "source_archive_codebuild" {
   type = string
 }
 
@@ -16,19 +30,5 @@ variable "git_repository_id" {
  * Git repository branch.
  */
 variable "git_repository_branch" {
-  type = string
-}
-
-/*
- * CodeBuild project ARN.
- */
-variable "codebuild_arn" {
-  type = string
-}
-
-/*
- * CodeBuild project name.
- */
-variable "codebuild_name" {
   type = string
 }

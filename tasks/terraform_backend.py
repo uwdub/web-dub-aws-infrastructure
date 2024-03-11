@@ -3,18 +3,15 @@ import os
 import os.path
 from pathlib import Path
 
+from tasks.constants import PATH_STAGING, PATH_TERRAFORM_BIN
 from tasks.terraform import write_terraform_variables
 
 BACKEND_NAME = "web-dub-backend"
 BACKEND_STATES = [
-    "codebuild",
     "codepipeline",
     "ecr",
 ]
 
-PATH_STAGING = Path("./.staging")
-
-PATH_TERRAFORM_BIN = Path("./.bin/terraform_1.7.4_windows_amd64/terraform.exe")
 PATH_TERRAFORM_DIR = Path("./terraform/backend")
 PATH_STAGING_TERRAFORM_VARIABLES = Path(PATH_STAGING, "terraform/backend.tfvars")
 

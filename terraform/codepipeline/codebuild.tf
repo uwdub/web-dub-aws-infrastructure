@@ -1,54 +1,19 @@
 /*
- * Pin specific versions.
+ * S3 upload of CodeBuild source.
  */
-terraform {
-  required_providers {
-    aws = {
-      source = "hashicorp/aws"
-      version = "5.38.0"
-    }
-  }
-
-  /*
-   * AWS configuration is provided by environment in surrounding task.
-   */
-  backend "s3" {
-    bucket = "web-dub-backend-tfstate-codebuild"
-    key = "state/terraform.tfstate"
-    dynamodb_table = "web-dub-backend-tfstate-lock"
-  }
-
-  required_version = "1.7.4"
-}
-
-/*
- * AWS configuration is provided by environment in surrounding task.
- */
-provider "aws" {
-}
-
-/*
- * S3 bucket in which to place archive of source.
- */
-resource "aws_s3_bucket" "codebuild_source_bucket" {
-}
-
-/*
- * S3 upload of source.
- */
-resource "aws_s3_object"  "codebuild_source_object" {
-  bucket = aws_s3_bucket.codebuild_source_bucket.id
-  key = "${var.name}.zip"
-  source = var.source_archive
+resource "aws_s3_object"  "object_codebuild_source" {
+  bucket = aws_s3_bucket.bucket_codebuild_source.id
+  key = "${var.name_codebuild}.zip"
+  source = var.source_archive_codebuild
 
   # etag triggers upload when file changes
-  etag = filemd5(var.source_archive)
+  etag = filemd5(var.source_archive_codebuild)
 }
 
 /*
- * Policy document for assuming the defined role.
+ * Policy document for assuming the CodeBuild role.
  */
-data "aws_iam_policy_document" "policy_document_assume" {
+data "aws_iam_policy_document" "policy_document_codebuild_assume" {
   statement {
     effect = "Allow"
 
@@ -142,12 +107,12 @@ resource "aws_iam_policy" "policy_codebuild" {
 }
 
 /*
- * Role that defines access policies for project.
+ * Role for CodeBuild.
  */
 resource "aws_iam_role" "role_codebuild" {
-  name = "role_codebuild_${var.name}"
+  name = "role_codebuild_${var.name_codebuild}"
 
-  assume_role_policy = data.aws_iam_policy_document.policy_document_assume.json
+  assume_role_policy = data.aws_iam_policy_document.policy_document_codebuild_assume.json
   managed_policy_arns = [
     aws_iam_policy.policy_codebuild.arn,
   ]
@@ -156,15 +121,15 @@ resource "aws_iam_role" "role_codebuild" {
 /*
  * Group for logs.
  */
-resource "aws_cloudwatch_log_group" "logs" {
-  name = "/aws/codebuild/${var.name}"
+resource "aws_cloudwatch_log_group" "logs_codebuild" {
+  name = "/aws/codebuild/${var.name_codebuild}"
 }
 
 /*
  * Codebuild project.
  */
 resource "aws_codebuild_project" "codebuild_project" {
-  name = var.name
+  name = var.name_codebuild
 
   service_role = aws_iam_role.role_codebuild.arn
 
@@ -182,12 +147,12 @@ resource "aws_codebuild_project" "codebuild_project" {
 
   source {
     type = "S3"
-    location = "${aws_s3_object.codebuild_source_object.bucket}/${aws_s3_object.codebuild_source_object.key}"
+    location = "${aws_s3_object.object_codebuild_source.bucket}/${aws_s3_object.object_codebuild_source.key}"
   }
 
   logs_config {
     cloudwatch_logs {
-      group_name = aws_cloudwatch_log_group.logs.name
+      group_name = aws_cloudwatch_log_group.logs_codebuild.name
     }
   }
 }
