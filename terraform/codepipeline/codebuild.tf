@@ -1,7 +1,7 @@
 /*
  * S3 upload of CodeBuild source.
  */
-resource "aws_s3_object"  "object_codebuild_source" {
+resource "aws_s3_object" "object_codebuild_source" {
   bucket = aws_s3_bucket.bucket_codebuild_source.id
   key = "${var.name_codebuild}.zip"
   source = var.source_archive_codebuild
@@ -133,10 +133,6 @@ resource "aws_codebuild_project" "codebuild_project" {
 
   service_role = aws_iam_role.role_codebuild.arn
 
-  artifacts {
-    type = "NO_ARTIFACTS"
-  }
-
   environment {
     compute_type = "BUILD_GENERAL1_SMALL"
     type = "LINUX_CONTAINER"
@@ -145,14 +141,30 @@ resource "aws_codebuild_project" "codebuild_project" {
     privileged_mode = true
   }
 
+  logs_config {
+    cloudwatch_logs {
+      group_name = aws_cloudwatch_log_group.logs_codebuild.name
+    }
+  }
+
   source {
     type = "S3"
     location = "${aws_s3_object.object_codebuild_source.bucket}/${aws_s3_object.object_codebuild_source.key}"
   }
 
-  logs_config {
-    cloudwatch_logs {
-      group_name = aws_cloudwatch_log_group.logs_codebuild.name
-    }
+  secondary_sources {
+    source_identifier = "source_output_web_dub"
+
+    type = "GITHUB"
+    location = "https://github.com/uwdub/web-dub.git"
+  }
+
+  secondary_source_version {
+    source_identifier = "source_output_web_dub"
+    source_version = "master"
+  }
+
+  artifacts {
+    type = "NO_ARTIFACTS"
   }
 }

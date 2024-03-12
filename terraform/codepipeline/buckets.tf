@@ -35,6 +35,17 @@ resource "aws_s3_bucket" "bucket_codebuild_source" {
 }
 
 /*
+ * Enabling versioning, required as CodePipeline source.
+ */
+resource "aws_s3_bucket_versioning" "bucket_codebuild_source" {
+  bucket = aws_s3_bucket.bucket_codebuild_source.id
+
+  versioning_configuration {
+    status = "Enabled"
+  }
+}
+
+/*
  * Apply bucket encryption.
  */
 resource "aws_s3_bucket_server_side_encryption_configuration" "bucket_codebuild_source" {
