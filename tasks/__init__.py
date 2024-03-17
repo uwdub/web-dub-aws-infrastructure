@@ -9,6 +9,7 @@ import tasks.format
 import tasks.terraform_backend
 import tasks.terraform_codepipeline
 import tasks.terraform_ecr
+import tasks.terraform_network
 
 # Enable color
 colorama.init()
@@ -73,4 +74,9 @@ compose_collection(
 # Compose from terraform_ecr.py
 # Needed only for initial configuration.
 # compose_collection(ns_terraform, tasks.terraform_ecr.ns, name="ecr")
+# compose_collection(ns, ns_terraform, name="terraform")
+
+# Compose from terraform_network.py
+# Needed only for initial configuration.
+# compose_collection(ns_terraform, tasks.terraform_network.ns, name="network")
 # compose_collection(ns, ns_terraform, name="terraform")
