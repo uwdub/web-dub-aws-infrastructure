@@ -49,12 +49,8 @@ def task_create_codebuild_archive(context):
     )
 
 
-@task(pre=[task_create_codebuild_archive])
-def task_terraform_apply(context):
-    """
-    Issue a Terraform apply.
-    """
-
+@task
+def task_write_terraform_variables(context):
     write_terraform_variables(
         terraform_variables_path=PATH_STAGING_TERRAFORM_VARIABLES,
         terraform_variables_dict={
@@ -67,6 +63,13 @@ def task_terraform_apply(context):
             "git_repository_branch": GIT_REPOSITORY_BRANCH,
         },
     )
+
+
+@task(pre=[task_write_terraform_variables, task_create_codebuild_archive])
+def task_terraform_apply(context):
+    """
+    Issue a Terraform apply.
+    """
 
     with context.cd(PATH_TERRAFORM_DIR):
         # Ensure initialized
@@ -111,20 +114,11 @@ def task_terraform_apply(context):
         )
 
 
-@task
+@task(pre=[task_write_terraform_variables])
 def task_terraform_destroy(context):
     """
     Issue a Terraform destroy.
     """
-
-    write_terraform_variables(
-        terraform_variables_path=PATH_STAGING_TERRAFORM_VARIABLES,
-        terraform_variables_dict={
-            "name": CODEPIPELINE_NAME,
-            "git_repository_id": GIT_REPOSITORY_ID,
-            "git_repository_branch": GIT_REPOSITORY_BRANCH,
-        },
-    )
 
     with context.cd(PATH_TERRAFORM_DIR):
         # Ensure initialized

@@ -18,11 +18,7 @@ PATH_STAGING_TERRAFORM_VARIABLES = Path(PATH_STAGING, "terraform/backend.tfvars"
 
 
 @task
-def task_terraform_apply(context):
-    """
-    Issue a Terraform apply.
-    """
-
+def task_write_terraform_variables(context):
     write_terraform_variables(
         terraform_variables_path=PATH_STAGING_TERRAFORM_VARIABLES,
         terraform_variables_dict={
@@ -30,6 +26,13 @@ def task_terraform_apply(context):
             "states": BACKEND_STATES,
         },
     )
+
+
+@task(pre=[task_write_terraform_variables])
+def task_terraform_apply(context):
+    """
+    Issue a Terraform apply.
+    """
 
     with context.cd(PATH_TERRAFORM_DIR):
         # Ensure initialized
@@ -74,7 +77,7 @@ def task_terraform_apply(context):
         )
 
 
-@task
+@task(pre=[task_write_terraform_variables])
 def task_terraform_destroy(context):
     """
     Issue a Terraform destroy.
