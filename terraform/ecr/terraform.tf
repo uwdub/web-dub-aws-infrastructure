@@ -22,15 +22,7 @@ terraform {
 }
 
 /*
- * The ECR.
+ * AWS configuration is provided by environment in surrounding task.
  */
-resource "aws_ecr_repository" "ecr" {
-  for_each = var.names
-
-  name = each.value
-
-  force_delete = true
-  lifecycle {
-    prevent_destroy = true
-  }
+provider "aws" {
 }
