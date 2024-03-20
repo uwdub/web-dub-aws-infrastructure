@@ -6,31 +6,32 @@ import os.path
 from pathlib import Path
 from typing import Dict, Optional
 
+from tasks.constants import (
+    ECR_REPOSITORY_NAME,
+    PATH_STAGING,
+    PATH_TERRAFORM_BIN,
+)
 from tasks.terraform import write_terraform_variables
 
-ECR_NAMES = [
-    "web-dub/web-dub",
-]
-
-PATH_STAGING = Path("./.staging")
-
-PATH_TERRAFORM_BIN = Path("./.bin/terraform_1.7.4_windows_amd64/terraform.exe")
 PATH_TERRAFORM_DIR = Path("./terraform/ecr")
 PATH_STAGING_TERRAFORM_VARIABLES = Path(PATH_STAGING, "terraform/ecr.tfvars")
 
 
 @task
+def task_write_terraform_variables(context):
+    write_terraform_variables(
+        terraform_variables_path=PATH_STAGING_TERRAFORM_VARIABLES,
+        terraform_variables_dict={
+            "repositories": [ECR_REPOSITORY_NAME],
+        },
+    )
+
+
+@task(pre=[task_write_terraform_variables])
 def task_terraform_apply(context):
     """
     Issue a Terraform apply.
     """
-
-    write_terraform_variables(
-        terraform_variables_path=PATH_STAGING_TERRAFORM_VARIABLES,
-        terraform_variables_dict={
-            "names": ECR_NAMES,
-        },
-    )
 
     with context.cd(PATH_TERRAFORM_DIR):
         # Ensure initialized
@@ -75,18 +76,11 @@ def task_terraform_apply(context):
         )
 
 
-@task
+@task(pre=[task_write_terraform_variables])
 def task_terraform_destroy(context):
     """
     Issue a Terraform destroy.
     """
-
-    write_terraform_variables(
-        terraform_variables_path=PATH_STAGING_TERRAFORM_VARIABLES,
-        terraform_variables_dict={
-            "names": ECR_NAMES,
-        },
-    )
 
     with context.cd(PATH_TERRAFORM_DIR):
         # Ensure initialized
