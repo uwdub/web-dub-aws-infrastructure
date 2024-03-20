@@ -125,17 +125,22 @@ def task_terraform_destroy(context):
         )
 
 
-class TerraformOutputEcr:
-    @dataclass
-    class TerraformOutputDataEcr:
-        registry_url: str
-        repository_urls: Dict[str, str]
+@dataclass
+class TerraformOutputDataEcrRepository:
+    name: str
+    arn: str
+    repository_url: str
 
+
+@dataclass
+class TerraformOutputDataEcr:
+    registry_url: str
+    repositories: Dict[str, TerraformOutputDataEcrRepository]
+
+
+class TerraformOutputEcr:
     _context: Context
     _cached_output: Optional[TerraformOutputDataEcr]
-
-    """
-    """
 
     def __init__(self, context):
         self._context = context
@@ -163,9 +168,16 @@ class TerraformOutputEcr:
 
             output_json = json.loads(result.stdout.strip())
 
-            self._cached_output = self.TerraformOutputDataEcr(
+            self._cached_output = TerraformOutputDataEcr(
                 registry_url=output_json["registry_url"]["value"],
-                repository_urls=output_json["repository_urls"]["value"],
+                repositories={
+                    key: TerraformOutputDataEcrRepository(
+                        name=value["name"],
+                        arn=value["arn"],
+                        repository_url=value["repository_url"],
+                    )
+                    for (key, value) in output_json["repositories"]["value"].items()
+                },
             )
 
         return self._cached_output

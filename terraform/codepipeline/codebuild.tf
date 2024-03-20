@@ -66,21 +66,33 @@ data "aws_iam_policy_document" "policy_document_codebuild" {
     ]
   }
 
-  # CodeBuild policy for permissive access to ECR
+  # Policy to obtain ECR authorization token
+  statement {
+    effect = "Allow"
+
+    actions = [
+      "ecr:GetAuthorizationToken",
+    ]
+
+    resources = [
+      "*"
+    ]
+  }
+
+  # Policy to access ECR repository
   statement {
     effect = "Allow"
 
     actions = [
       "ecr:BatchCheckLayerAvailability",
       "ecr:CompleteLayerUpload",
-      "ecr:GetAuthorizationToken",
       "ecr:InitiateLayerUpload",
       "ecr:PutImage",
       "ecr:UploadLayerPart",
     ]
 
     resources = [
-      "*"
+      var.ecr_repository.arn
     ]
   }
 

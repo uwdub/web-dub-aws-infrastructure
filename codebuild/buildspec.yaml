@@ -37,7 +37,7 @@ phases:
 
       # Build the image
       - 'docker build
-           --tag "$ECR_REPOSITORY:latest" 
+           --tag "$ECR_REPOSITORY_NAME:latest" 
            .
         '
 
@@ -45,8 +45,8 @@ phases:
     on-failure: "ABORT"
     commands:
       # Push to ECR as build id
-      - 'docker tag "$ECR_REPOSITORY:latest" "$ECR_REPOSITORY_URL:$BUILD_ID"'
+      - 'docker tag "$ECR_REPOSITORY_NAME:latest" "$ECR_REPOSITORY_URL:$BUILD_ID"'
       - 'docker push "$ECR_REPOSITORY_URL:$BUILD_ID"'
       # Push to ECR as latest
-      - 'docker tag "$ECR_REPOSITORY:latest" "$ECR_REPOSITORY_URL:latest"'
+      - 'docker tag "$ECR_REPOSITORY_NAME:latest" "$ECR_REPOSITORY_URL:latest"'
       - 'docker push "$ECR_REPOSITORY_URL:latest"'

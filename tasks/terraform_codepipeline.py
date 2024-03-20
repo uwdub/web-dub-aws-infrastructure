@@ -31,8 +31,10 @@ def codebuild_environment_variables(*, context: Context) -> Dict[str, str]:
     with TerraformOutputEcr(context) as ecr:
         return {
             "ECR_REGISTRY_URL": ecr.output.registry_url,
-            "ECR_REPOSITORY": ECR_REPOSITORY_NAME,
-            "ECR_REPOSITORY_URL": ecr.output.repository_urls[ECR_REPOSITORY_NAME],
+            "ECR_REPOSITORY_NAME": ECR_REPOSITORY_NAME,
+            "ECR_REPOSITORY_URL": ecr.output.repositories[
+                ECR_REPOSITORY_NAME
+            ].repository_url,
         }
 
 
@@ -93,18 +95,20 @@ def task_create_codebuild_archive(context):
 
 @task
 def task_write_terraform_variables(context):
-    write_terraform_variables(
-        terraform_variables_path=PATH_STAGING_TERRAFORM_VARIABLES,
-        terraform_variables_dict={
-            "name_codepipeline": CODEPIPELINE_NAME,
-            "name_codebuild": CODEBUILD_NAME,
-            "source_archive_codebuild": os.path.relpath(
-                PATH_STAGING_CODEBUILD_ARCHIVE, PATH_TERRAFORM_DIR
-            ),
-            "git_repository_id": GIT_REPOSITORY_ID,
-            "git_repository_branch": GIT_REPOSITORY_BRANCH,
-        },
-    )
+    with TerraformOutputEcr(context) as ecr:
+        write_terraform_variables(
+            terraform_variables_path=PATH_STAGING_TERRAFORM_VARIABLES,
+            terraform_variables_dict={
+                "ecr_repository": ecr.output.repositories[ECR_REPOSITORY_NAME],
+                "name_codepipeline": CODEPIPELINE_NAME,
+                "name_codebuild": CODEBUILD_NAME,
+                "source_archive_codebuild": os.path.relpath(
+                    PATH_STAGING_CODEBUILD_ARCHIVE, PATH_TERRAFORM_DIR
+                ),
+                "git_repository_id": GIT_REPOSITORY_ID,
+                "git_repository_branch": GIT_REPOSITORY_BRANCH,
+            },
+        )
 
 
 @task(pre=[task_write_terraform_variables, task_create_codebuild_archive])

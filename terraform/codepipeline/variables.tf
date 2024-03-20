@@ -33,3 +33,13 @@ variable "git_repository_branch" {
   type = string
 }
 
+/*
+ * ECR repository.
+ */
+variable "ecr_repository" {
+  type = object({
+    name: string
+    arn: string
+    repository_url: string
+  })
+}

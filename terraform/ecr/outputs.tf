@@ -8,8 +8,12 @@ output "registry_url" {
 /*
  * URLs of the repositories.
  */
-output "repository_urls" {
+output "repositories" {
   value = tomap({
-    for name, ecr in aws_ecr_repository.ecr : name => ecr.repository_url
+    for name, ecr in aws_ecr_repository.ecr : name => {
+      "name"           = name
+      "arn"            = ecr.arn
+      "repository_url" = ecr.repository_url
+    }
   })
 }
