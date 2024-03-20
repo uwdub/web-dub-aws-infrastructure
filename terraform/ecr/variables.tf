@@ -1,6 +1,6 @@
 /*
  * Names of created ECRs.
  */
-variable "names" {
+variable "repositories" {
   type = set(string)
 }
