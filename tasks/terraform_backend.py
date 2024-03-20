@@ -10,6 +10,7 @@ BACKEND_NAME = "web-dub-backend"
 BACKEND_STATES = [
     "codepipeline",
     "ecr",
+    "ecs",
     "network",
 ]
 
