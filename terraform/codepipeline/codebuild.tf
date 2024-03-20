@@ -34,7 +34,7 @@ data "aws_iam_policy_document" "policy_document_codebuild_assume" {
  * Policy document for the CodeBuild role.
  */
 data "aws_iam_policy_document" "policy_document_codebuild" {
-  # CodeBuild policy for permissive access to logging
+  # Policy to access logging
   statement {
     effect = "Allow"
 
@@ -45,11 +45,12 @@ data "aws_iam_policy_document" "policy_document_codebuild" {
     ]
 
     resources = [
-      "*"
+      aws_cloudwatch_log_group.logs_codebuild.arn,
+      "${aws_cloudwatch_log_group.logs_codebuild.arn}:*"
     ]
   }
 
-  # CodeBuild policy for permissive access to S3
+  # Policy to access CodePipeline artifacts
   statement {
     effect = "Allow"
 
@@ -62,7 +63,22 @@ data "aws_iam_policy_document" "policy_document_codebuild" {
     ]
 
     resources = [
-      "*"
+      aws_s3_bucket.bucket_artifact_store.arn,
+      "${aws_s3_bucket.bucket_artifact_store.arn}/*"
+    ]
+  }
+
+  # Policy to access key used for buckets
+  statement {
+    effect = "Allow"
+
+    actions = [
+      "kms:Decrypt",
+      "kms:GenerateDataKey",
+    ]
+
+    resources = [
+      aws_kms_key.key_buckets.arn,
     ]
   }
 
@@ -95,20 +111,6 @@ data "aws_iam_policy_document" "policy_document_codebuild" {
       var.ecr_repository.arn
     ]
   }
-
-  statement {
-    effect = "Allow"
-
-    actions = [
-      "kms:Decrypt",
-      "kms:GenerateDataKey",
-    ]
-
-    resources = [
-      "*",
-    ]
-  }
-
 }
 
 /*
