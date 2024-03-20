@@ -1,0 +1,52 @@
+version: 0.2
+
+env:
+  shell: "bash"
+
+phases:
+  pre_build:
+    on-failure: "ABORT"
+    commands:
+      # Load environment variables and secrets
+      - 'test -f ./codebuild_env.sh && source ./codebuild_env.sh'
+      - 'test -f ./codebuild_secrets.sh && source ./codebuild_secrets.sh'
+
+      # Generate a build id
+      - 'BUILD_ID=$(date +"%Y%m%d%H%M%S")'
+
+      # Login to DockerHub, required due to rate limits on public images
+      - 'echo $DOCKER_TOKEN |
+         docker login
+           --username $DOCKER_ACCOUNT
+           --password-stdin
+        '
+
+      # Login to our private ECR, required to push the image
+      - 'aws ecr get-login-password |
+         docker login
+           --username AWS
+           --password-stdin
+           $ECR_REGISTRY_URL
+        '
+
+  build:
+    on-failure: "ABORT"
+    commands:
+      # Copy our source to where Dockerfile expects it
+      - 'cp -r $CODEBUILD_SRC_DIR_source_output_web_dub web_dub'
+
+      # Build the image
+      - 'docker build
+           --tag "$ECR_REPOSITORY:latest" 
+           .
+        '
+
+  post_build:
+    on-failure: "ABORT"
+    commands:
+      # Push to ECR as build id
+      - 'docker tag "$ECR_REPOSITORY:latest" "$ECR_REPOSITORY_URL:$BUILD_ID"'
+      - 'docker push "$ECR_REPOSITORY_URL:$BUILD_ID"'
+      # Push to ECR as latest
+      - 'docker tag "$ECR_REPOSITORY:latest" "$ECR_REPOSITORY_URL:latest"'
+      - 'docker push "$ECR_REPOSITORY_URL:latest"'
