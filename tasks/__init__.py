@@ -6,6 +6,7 @@ from tasks.collection import compose_collection
 import tasks.aws
 import tasks.codebuild
 import tasks.format
+import tasks.terraform_alb
 import tasks.terraform_backend
 import tasks.terraform_codepipeline
 import tasks.terraform_ecr
@@ -39,11 +40,27 @@ compose_collection(
 # Compose Terraform tasks
 ns_terraform = Collection("terraform")
 
-# Compose from codepipeline.py
+# Compose from terraform_alb.py
+compose_collection(
+    ns_terraform,
+    tasks.terraform_alb.ns,
+    name="alb",
+    include=["apply"],
+)
+
+# Compose from terraform_codepipeline.py
 compose_collection(
     ns_terraform,
     tasks.terraform_codepipeline.ns,
     name="codepipeline",
+    include=["apply"],
+)
+
+# Compose from terraform_ecs.py
+compose_collection(
+    ns_terraform,
+    tasks.terraform_ecs.ns,
+    name="ecs",
     include=["apply"],
 )
 
@@ -55,34 +72,32 @@ compose_collection(
 )
 
 #
-# Additional non-needed tasks.
+# Additional tasks that are not generally needed.
 #
 
 # Compose from aws.py
-# Needed only for initial configuration.
 # compose_collection(ns, tasks.aws.ns, name="aws")
 
+# Compose from terraform_alb.py
+# compose_collection(ns_terraform, tasks.terraform_alb.ns, name="alb")
+# compose_collection(ns, ns_terraform, name="terraform")
+
 # Compose from terraform_backend.py
-# Needed only for initial configuration.
 # compose_collection(ns_terraform, tasks.terraform_backend.ns, name="backend")
 # compose_collection(ns, ns_terraform, name="terraform")
 
 # Compose from terraform_codepipeline.py
-# Needed only for initial configuration.
 # compose_collection(ns_terraform, tasks.terraform_codepipeline.ns, name="codepipeline")
 # compose_collection(ns, ns_terraform, name="terraform")
 
 # Compose from terraform_ecr.py
-# Needed only for initial configuration.
 # compose_collection(ns_terraform, tasks.terraform_ecr.ns, name="ecr")
 # compose_collection(ns, ns_terraform, name="terraform")
 
 # Compose from terraform_ecs.py
-# Needed only for initial configuration.
 # compose_collection(ns_terraform, tasks.terraform_ecs.ns, name="ecs")
 # compose_collection(ns, ns_terraform, name="terraform")
 
 # Compose from terraform_network.py
-# Needed only for initial configuration.
 # compose_collection(ns_terraform, tasks.terraform_network.ns, name="network")
 # compose_collection(ns, ns_terraform, name="terraform")
