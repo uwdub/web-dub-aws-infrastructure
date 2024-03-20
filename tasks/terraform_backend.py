@@ -8,6 +8,7 @@ from tasks.terraform import write_terraform_variables
 
 BACKEND_NAME = "web-dub-backend"
 BACKEND_STATES = [
+    "alb",
     "codepipeline",
     "ecr",
     "ecs",
