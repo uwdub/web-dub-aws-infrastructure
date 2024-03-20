@@ -1,3 +1,4 @@
+from dataclasses import asdict, is_dataclass
 import json
 import os
 from pathlib import Path
@@ -21,9 +22,12 @@ def write_terraform_variables(
             )
         )
         for key, value in terraform_variables_dict.items():
+            if is_dataclass(value):
+                value = asdict(value)
+
             file_variables.write(
                 "{} = {}\n".format(
                     key,
-                    json.dumps(value, separators=(",", " = ")),
+                    json.dumps(value, separators=(",", " = "), indent=2),
                 )
             )
