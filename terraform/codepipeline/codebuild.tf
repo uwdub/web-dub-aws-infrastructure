@@ -138,6 +138,7 @@ resource "aws_codebuild_project" "codebuild_project" {
     type = "LINUX_CONTAINER"
     image = "aws/codebuild/standard:5.0"
 
+    // Required for building Docker image
     privileged_mode = true
   }
 
