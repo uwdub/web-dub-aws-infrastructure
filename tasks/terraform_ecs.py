@@ -10,6 +10,7 @@ from tasks.constants import (
     PATH_TERRAFORM_BIN,
 )
 from tasks.terraform import write_terraform_variables
+from tasks.terraform_alb import TerraformOutputAlb
 from tasks.terraform_ecr import TerraformOutputEcr
 from tasks.terraform_network import TerraformOutputNetwork
 
@@ -20,14 +21,20 @@ PATH_STAGING_TERRAFORM_VARIABLES = Path(PATH_STAGING, "terraform/ecs.tfvars")
 
 @task
 def task_write_terraform_variables(context):
-    with TerraformOutputEcr(context) as ecr, TerraformOutputNetwork(context) as network:
+    with (
+        TerraformOutputAlb(context) as alb,
+        TerraformOutputEcr(context) as ecr,
+        TerraformOutputNetwork(context) as network,
+    ):
         write_terraform_variables(
             terraform_variables_path=PATH_STAGING_TERRAFORM_VARIABLES,
             terraform_variables_dict={
                 "name": ECS_TASK_NAME,
+                "vpc_id": network.output.vpc_id,
                 "subnet_ids": network.output.subnet_ids,
                 "security_group_ids": network.output.security_group_ids,
-                "repository_url": ecr.output.repository_urls[ECR_REPOSITORY_NAME],
+                "ecr_repository": ecr.output.repositories[ECR_REPOSITORY_NAME],
+                "alb_listener_arn": alb.output.alb_listener.arn,
             },
         )
 

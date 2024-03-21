@@ -1,5 +1,6 @@
 from pathlib import Path
 
+ALB_NAME = "web-dub-app"
 CODEPIPELINE_NAME = "web-dub-codepipeline"
 CODEBUILD_NAME = "web-dub-codebuild"
 GIT_REPOSITORY_ID = "uwdub/web-dub"
