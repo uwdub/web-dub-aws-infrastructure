@@ -7,6 +7,7 @@ import tasks.aws
 import tasks.codebuild
 import tasks.format
 import tasks.terraform_alb
+import tasks.terraform_all
 import tasks.terraform_backend
 import tasks.terraform_codepipeline
 import tasks.terraform_ecr
@@ -100,4 +101,10 @@ compose_collection(
 
 # Compose from terraform_network.py
 # compose_collection(ns_terraform, tasks.terraform_network.ns, name="network")
+# compose_collection(ns, ns_terraform, name="terraform")
+
+#
+# Heavyweight tasks to Terraform everything.
+#
+# compose_collection(ns_terraform, tasks.terraform_all.ns, name="all")
 # compose_collection(ns, ns_terraform, name="terraform")
