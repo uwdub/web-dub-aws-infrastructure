@@ -6,22 +6,37 @@ variable "name" {
 }
 
 /*
- * List of IDs of all subnets.
+ * Id of the Vpc.
+ */
+variable "vpc_id" {
+  type = string
+}
+
+/*
+ * List of Ids of all subnets.
  */
 variable "subnet_ids" {
   type = set(string)
 }
 
 /*
- * ID of the associated security groups.
+ * Ids of the associated security groups.
  */
 variable "security_group_ids" {
   type = set(string)
 }
 
 /*
- * Report URL for task container.
+ * Ecr repository for the task.
  */
-variable "repository_url" {
+variable "ecr_repository" {
+  type = object({
+    name: string
+    arn: string
+    repository_url: string
+  })
+}
+
+variable "alb_listener_arn" {
   type = string
 }
