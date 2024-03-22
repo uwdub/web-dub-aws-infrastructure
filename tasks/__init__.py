@@ -41,14 +41,6 @@ compose_collection(
 # Compose Terraform tasks
 ns_terraform = Collection("terraform")
 
-# Compose from terraform_alb.py
-compose_collection(
-    ns_terraform,
-    tasks.terraform_alb.ns,
-    name="alb",
-    include=["apply"],
-)
-
 # Compose from terraform_codepipeline.py
 compose_collection(
     ns_terraform,
