@@ -66,15 +66,15 @@ def apply_aws_env():
 
 
 @task
-def task_configure_probe(context):
+def task_configure_dub(context):
     """
-    Configure AWS CLI for probe.
+    Configure AWS CLI for DUB.
     """
 
     _task_configure(
         path_aws_env=PATH_AWS_ENV,
         path_aws_configurations=PATH_AWS_CONFIGURATIONS,
-        aws_configuration_name="probe",
+        aws_configuration_name="dub",
     )
 
 
@@ -82,6 +82,6 @@ def task_configure_probe(context):
 ns = Collection("aws")
 
 ns_configure = Collection("configure")
-ns_configure.add_task(task_configure_probe, "probe")
+ns_configure.add_task(task_configure_dub, "dub")
 
 ns.add_collection(ns_configure, "configure")
