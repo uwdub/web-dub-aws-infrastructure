@@ -3,10 +3,13 @@ resource "aws_alb" "alb" {
   internal           = false
   load_balancer_type = "application"
 
-  enable_deletion_protection = true
-
   subnets         = var.subnet_ids
   security_groups = var.security_group_ids
+
+  enable_deletion_protection = true
+  lifecycle {
+    prevent_destroy = true
+  }
 }
 
 resource "aws_alb_listener" "listener" {
