@@ -12,7 +12,7 @@ resource "aws_alb" "alb" {
   }
 }
 
-resource "aws_alb_listener" "listener" {
+resource "aws_alb_listener" "listener_http" {
   load_balancer_arn = aws_alb.alb.arn
   port              = "80"
   protocol          = "HTTP"
@@ -27,3 +27,20 @@ resource "aws_alb_listener" "listener" {
     }
   }
 }
+
+# resource "aws_alb_listener" "listener_https" {
+#   load_balancer_arn = aws_alb.alb.arn
+#   port              = "443"
+#   protocol          = "HTTPS"
+#   certificate_arn   = aws_acm_certificate.dub_washington_edu.arn
+#
+#   default_action {
+#     type             = "fixed-response"
+#
+#     fixed_response {
+#       content_type = "text/plain"
+#       status_code  = "503"
+#       message_body = "Request not matched."
+#     }
+#   }
+# }

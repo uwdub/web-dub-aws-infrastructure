@@ -7,6 +7,6 @@ output "alb" {
 
 output "alb_listener" {
   value = {
-    "arn" = aws_alb_listener.listener.arn
+    "arn" = aws_alb_listener.listener_http.arn
   }
 }
