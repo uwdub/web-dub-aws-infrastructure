@@ -50,3 +50,10 @@ phases:
       # Push to ECR as latest
       - 'docker tag "$ECR_REPOSITORY_NAME:latest" "$ECR_REPOSITORY_URL:latest"'
       - 'docker push "$ECR_REPOSITORY_URL:latest"'
+
+      # Export imagedefinitions.json for deployment
+      - 'printf ''[{"name":"web-dub","imageUri":"%s"}]'' "$ECR_REPOSITORY_URL:$BUILD_ID" > imagedefinitions.json'
+
+artifacts:
+  files:
+    - 'imagedefinitions.json'

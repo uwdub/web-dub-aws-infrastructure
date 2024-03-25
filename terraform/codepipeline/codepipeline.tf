@@ -85,6 +85,35 @@ data "aws_iam_policy_document" "policy_document_codepipeline" {
       aws_codebuild_project.codebuild_project.arn,
     ]
   }
+
+  statement {
+    effect = "Allow"
+
+    actions = [
+      # TODO
+      "ecs:*",
+    ]
+
+    resources = [
+      # TODO
+      "*",
+    ]
+  }
+
+  statement {
+    effect = "Allow"
+
+    actions = [
+      "iam:PassRole",
+    ]
+
+    resources = [
+      # TODO
+      # aws_iam_role.role_ecs.arn
+      "*",
+    ]
+  }
+
 }
 
 /*
@@ -165,17 +194,37 @@ resource "aws_codepipeline" "codepipeline" {
     name = "Build"
 
     action {
-      name             = "Build"
+      name             = "build"
       category         = "Build"
       owner            = "AWS"
       provider         = "CodeBuild"
       input_artifacts  = ["source_output_codebuild", "source_output_web_dub"]
-      output_artifacts = ["build_output"]
+      output_artifacts = ["build_output_imagedefinitions"]
       version          = "1"
 
       configuration = {
         ProjectName   = var.name_codebuild
         PrimarySource = "source_output_codebuild"
+      }
+    }
+  }
+
+  stage {
+    name = "Deploy"
+
+    action {
+      name             = "deploy"
+      category         = "Deploy"
+      owner            = "AWS"
+      provider         = "ECS"
+      input_artifacts  = ["build_output_imagedefinitions"]
+      version          = "1"
+
+      configuration = {
+        ClusterName       = "web-dub-cluster"
+        ServiceName       = "web-dub-service"
+        FileName          = "imagedefinitions.json"
+        DeploymentTimeout = "15" # minutes
       }
     }
   }

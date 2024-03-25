@@ -31,6 +31,7 @@ data "aws_iam_policy_document" "policy_document_ecs" {
     ]
 
     resources = [
+      # TODO
       "*"
     ]
   }
