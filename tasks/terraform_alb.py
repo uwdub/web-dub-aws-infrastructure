@@ -134,6 +134,7 @@ def task_terraform_destroy(context):
 class _TerraformOutputDataAlb:
     arn: str
     dns_name: str
+    zone_id: str
 
 
 @dataclass
@@ -181,6 +182,7 @@ class TerraformOutputAlb:
                 alb=_TerraformOutputDataAlb(
                     arn=output_json["alb"]["value"]["arn"],
                     dns_name=output_json["alb"]["value"]["dns_name"],
+                    zone_id=output_json["alb"]["value"]["zone_id"],
                 ),
                 alb_listener=_TerraformOutputDataAlbListener(
                     arn=output_json["alb_listener"]["value"]["arn"],

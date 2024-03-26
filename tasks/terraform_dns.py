@@ -1,17 +1,14 @@
-from dataclasses import dataclass
-from invoke import Collection, Context, task
-import json
+from invoke import Collection, task
 import os
 import os.path
 from pathlib import Path
-from typing import Optional
 
 from tasks.constants import (
     PATH_STAGING,
     PATH_TERRAFORM_BIN,
 )
 from tasks.terraform import write_terraform_variables
-from tasks.terraform_network import TerraformOutputNetwork
+from tasks.terraform_alb import TerraformOutputAlb
 
 
 PATH_TERRAFORM_DIR = Path("./terraform/dns")
@@ -20,10 +17,13 @@ PATH_STAGING_TERRAFORM_VARIABLES = Path(PATH_STAGING, "terraform/dns.tfvars")
 
 @task
 def task_write_terraform_variables(context):
-    with TerraformOutputNetwork(context) as network:
+    with TerraformOutputAlb(context) as alb:
         write_terraform_variables(
             terraform_variables_path=PATH_STAGING_TERRAFORM_VARIABLES,
-            terraform_variables_dict={},
+            terraform_variables_dict={
+                "alb_dns_name": alb.output.alb.dns_name,
+                "alb_zone_id": alb.output.alb.zone_id,
+            },
         )
 
 
