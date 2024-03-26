@@ -3,6 +3,7 @@ from invoke import Collection, task
 import tasks.terraform_alb
 import tasks.terraform_backend
 import tasks.terraform_codepipeline
+import tasks.terraform_dns
 import tasks.terraform_ecr
 import tasks.terraform_ecs
 import tasks.terraform_network
@@ -12,6 +13,7 @@ TASK_ORDER_APPLY = [
     tasks.terraform_ecr.task_terraform_apply,
     tasks.terraform_network.task_terraform_apply,
     tasks.terraform_alb.task_terraform_apply,
+    tasks.terraform_dns.task_terraform_apply,
     tasks.terraform_codepipeline.task_terraform_apply,
     tasks.terraform_ecs.task_terraform_apply,
 ]
