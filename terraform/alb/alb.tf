@@ -18,6 +18,23 @@ resource "aws_lb_listener" "listener_http" {
   protocol          = "HTTP"
 
   default_action {
+    type             = "redirect"
+
+    redirect {
+      port        = "443"
+      protocol    = "HTTPS"
+      status_code = "HTTP_301"
+    }
+  }
+}
+
+resource "aws_lb_listener" "listener_https" {
+  load_balancer_arn = aws_lb.alb.arn
+  port              = "443"
+  protocol          = "HTTPS"
+  certificate_arn   = aws_acm_certificate.dub_uw_edu.arn
+
+  default_action {
     type             = "fixed-response"
 
     fixed_response {
@@ -27,20 +44,3 @@ resource "aws_lb_listener" "listener_http" {
     }
   }
 }
-
-# resource "aws_lb_listener" "listener_https" {
-#   load_balancer_arn = aws_lb.alb.arn
-#   port              = "443"
-#   protocol          = "HTTPS"
-#   certificate_arn   = aws_acm_certificate.dub_washington_edu.arn
-#
-#   default_action {
-#     type             = "fixed-response"
-#
-#     fixed_response {
-#       content_type = "text/plain"
-#       status_code  = "503"
-#       message_body = "Request not matched."
-#     }
-#   }
-# }

@@ -15,7 +15,7 @@ resource "aws_route53_record" "dub_washington_edu_alb_alias" {
     name                   = var.alb_dns_name
     zone_id                = var.alb_zone_id
 
-    evaluate_target_health = false
+    evaluate_target_health = true
   }
 }
 
@@ -28,7 +28,7 @@ resource "aws_route53_record" "dub_washington_edu_validation" {
     "_bb99f28ee192a932b2e6f252deb0ba2b.mhbtsbpdnt.acm-validations.aws."
   ]
 
-  ttl = "60"
+  ttl = "300"
 }
 
 resource "aws_route53_record" "dub_washington_edu_mx_dubber" {
@@ -40,5 +40,5 @@ resource "aws_route53_record" "dub_washington_edu_mx_dubber" {
     "5 dubber.cs.washington.edu."
   ]
 
-  ttl = "60"
+  ttl = "86400"
 }
