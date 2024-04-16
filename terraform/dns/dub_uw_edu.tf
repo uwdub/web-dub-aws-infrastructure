@@ -61,7 +61,7 @@ resource "aws_route53_record" "dub_uw_edu_dkim_dubber" {
   type    = "TXT"
 
   records = [
-    "v=DKIM1; h=rsa-sha256; k=rsa;\" \"p=MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAjmMgyU1YuJhTcwWbAJCP0SfDYe9nEdd3QL2XEFFmn0OqHhvjPPpUjbVxwE4/qPm69YpJft8Vxfc46sadFU6EpunxzJBFB7OsXiYx9H8mFrZmYyc8vtcRetEKWkCj7R18lTfbm7kRbZE10KLGOFYOBUOXnN3CA4fHunetvsacvU4XnxZisd1RnwFJOO4+g34BZDWSAltk/Ze0ja\" \"kkx3XAsHr+i0VN7CtPg6adgY06Q3M8prVsYW2WcvqUOubL5tadJ07SaI8XYrlTy+XgkqU5vqLHd7DU08swV96uYFD2MOpgtw5BW79k/rslAwiqSnFCllObbFYW6eW40GAYSq9sUwIDAQAB"
+    "v=DKIM1; h=sha256; k=rsa;\" \"p=MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAjmMgyU1YuJhTcwWbAJCP0SfDYe9nEdd3QL2XEFFmn0OqHhvjPPpUjbVxwE4/qPm69YpJft8Vxfc46sadFU6EpunxzJBFB7OsXiYx9H8mFrZmYyc8vtcRetEKWkCj7R18lTfbm7kRbZE10KLGOFYOBUOXnN3CA4fHunetvsacvU4XnxZisd1RnwFJOO4+g34BZDWSAltk/Ze0ja\" \"kkx3XAsHr+i0VN7CtPg6adgY06Q3M8prVsYW2WcvqUOubL5tadJ07SaI8XYrlTy+XgkqU5vqLHd7DU08swV96uYFD2MOpgtw5BW79k/rslAwiqSnFCllObbFYW6eW40GAYSq9sUwIDAQAB"
   ]
 
   ttl = "600"
