@@ -40,6 +40,7 @@ def task_terraform_apply(context):
                 [
                     os.path.relpath(PATH_TERRAFORM_BIN, PATH_TERRAFORM_DIR),
                     "init",
+                    "-upgrade",
                 ]
             ),
             echo=True,
@@ -89,6 +90,7 @@ def task_terraform_destroy(context):
                 [
                     os.path.relpath(PATH_TERRAFORM_BIN, PATH_TERRAFORM_DIR),
                     "init",
+                    "-upgrade",
                 ]
             ),
             echo=True,
