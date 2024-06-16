@@ -13,16 +13,32 @@ data "aws_ecr_lifecycle_policy_document" "policy_document" {
     }
 
     selection {
-      tag_status      = "tagged"
-      tag_prefix_list = ["latest"]
-      count_type      = "imageCountMoreThan"
-      count_number    = 1
+      tag_status       = "tagged"
+      tag_pattern_list = ["latest"]
+      count_type       = "imageCountMoreThan"
+      count_number     = 1
     }
   }
 
   rule {
     priority    = 2
-    description = "Preserve 5 previous images."
+    description = "Preserve 10 previous images."
+
+    action {
+      type = "expire"
+    }
+
+    selection {
+      tag_status       = "tagged"
+      tag_pattern_list = ["*"]
+      count_type      = "imageCountMoreThan"
+      count_number    = 10
+    }
+  }
+
+  rule {
+    priority    = 3
+    description = "Preserve 180 days of previous images."
 
     action {
       type = "expire"
@@ -30,8 +46,9 @@ data "aws_ecr_lifecycle_policy_document" "policy_document" {
 
     selection {
       tag_status      = "any"
-      count_type      = "imageCountMoreThan"
-      count_number    = 5
+      count_type      = "sinceImagePushed"
+      count_unit      = "days"
+      count_number    = 180
     }
   }
 }
