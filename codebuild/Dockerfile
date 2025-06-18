@@ -36,7 +36,7 @@ COPY --from=stage_build_python /web_dub .
 RUN set -ex \
     && echo 'deb http://archive.debian.org/debian stretch main' > /etc/apt/sources.list \
     && apt-get update \
-    && apt-get install -y \
+    && apt-get install -y --allow-unauthenticated \
        curl \
     && curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.7/install.sh | bash \
     && /bin/bash -l -c "nvm install 8.17.0" \
