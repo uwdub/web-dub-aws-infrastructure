@@ -54,4 +54,5 @@ RUN set -ex \
 #
 FROM nginx:alpine AS stage_serve
 
+COPY nginx_cache.conf /etc/nginx/conf.d/cache.conf
 COPY --from=stage_build_ruby /web_dub/_site /usr/share/nginx/html
